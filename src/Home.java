@@ -10,6 +10,15 @@ public class Home {
 	= "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01";
 
     public static void main(String[] args) throws Exception{
+//    	DatabaseConnector dbc = new DatabaseConnector("agarg12", "200157990");
+    	DatabaseConnector.connect();
+    	DatabaseMetaData md = DatabaseConnector.conn.getMetaData();
+    	ResultSet a = md.getTables(null, null, null, null);
+    	while(a.next()) {
+    		System.out.println(a.getString(1));
+    	}
+//    	System.out.println(a..toString());
+    	
 /*
         DatabaseConnector dbc = new DatabaseConnector("agarg12", "200157990");
         	
@@ -50,10 +59,11 @@ public class Home {
 		    float n = rs.getFloat("PRICE");
 		    System.out.println(s + "   " + n);
 		}
-		*/
+		
 //    	Runtime.getRuntime().exec("clear");
     	UserSession us = new UserSession();
     	us.MainView();
+    	*/
     }
 }
 

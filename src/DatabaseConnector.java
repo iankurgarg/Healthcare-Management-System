@@ -4,7 +4,7 @@ public class DatabaseConnector {
 	private static final String jdbcURL = "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01";
 	private static String user = "agarg12";
 	private static String password = "200157990";
-	private static Connection conn = null;
+	public static Connection conn = null;
 	private static Statement stmt = null;
 	
 	public DatabaseConnector(String user, String password) {
@@ -76,7 +76,6 @@ public class DatabaseConnector {
 	}
 	
 	public static void disconnect() {
-		/*
 		if (conn != null) {
 			try {
 				conn.close();
@@ -94,6 +93,5 @@ public class DatabaseConnector {
 				System.out.println("Unable to close the statement");
 			}
 		}
-		*/
 	}
 }
