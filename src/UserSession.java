@@ -1,23 +1,23 @@
 import java.sql.ResultSet;
-import java.util.Scanner;
 
 public class UserSession {
 	private String userid;
 	private String password;
 	private int userType;
-	private Scanner sc;
 	private Patient p;
 	
-	static String tableName = "users";
-	static String colID = "userID";
-	private static String colPassword = "password";
-	static String colName = "Name";
-	static String colAddress = "Address";
-	static String colPhone = "Phone";
+	static String tableName = "person";
+	static String colID = "userid";
+	static String colPassword = "password";
+	static String colfName = "fname";
+	static String collName = "lname";
+	static String colAddress = "address";
+	static String colPhone = "phone";
+	static String colGender = "gender";
+	static String colDOB = "dob";
 
 	
 	public UserSession () {
-		sc = new Scanner(System.in);
 	}
 	
 	public void MainView() {
@@ -27,15 +27,15 @@ public class UserSession {
 			System.out.println("Select from the following options:\n"
 					+ "1. Login as patient\n"
 					+ "2. Login as Health Supporter\n"
-					+ "3. Exit");
-			option = sc.nextInt();
-			if (option == 3)
+					+ "3. Go Back");
+			option = StaticFunctions.nextInt();
+			if (option != 1 && option !=2)
 				continue;
 			userType = option;
 			System.out.println("Enter username:");
-			this.userid = sc.next();
+			this.userid = StaticFunctions.next();
 			System.out.println("Enter password:");
-			this.password = sc.next();
+			this.password = StaticFunctions.next();
 			
 			if (authenticate() == 0) {
 				System.out.println("Success: User authenticated");
@@ -44,7 +44,7 @@ public class UserSession {
 					p.MainView();
 				}
 				else {
-					
+					//Health Supporter
 				}
 			}
 			else {
@@ -57,7 +57,7 @@ public class UserSession {
 	}
 
 	private int authenticate() {
-		String query ="SELECT * FROM "+UserSession.tableName+" U WHERE U."+colID+"="+this.userid+" AND U."+colPassword+"="+this.password;
+		String query ="SELECT * FROM "+tableName+" P WHERE P."+colID+"='"+this.userid+"' AND P."+colPassword+"='"+this.password+"'";
 		ResultSet rs = DatabaseConnector.runQuery(query);
 		if (rs == null)
 			return -1;
@@ -74,6 +74,5 @@ public class UserSession {
 		userid = null;
 		password = null;
 		userType = -1;
-		sc.close();
 	}
 }

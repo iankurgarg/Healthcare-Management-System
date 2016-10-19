@@ -31,7 +31,7 @@ public class DatabaseConnector {
 		}
 		
 		try {
-			stmt = conn.createStatement();
+			stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		}
 		catch (Exception e) {
 			System.out.println("Unable to create a statement for the connection");
@@ -48,7 +48,7 @@ public class DatabaseConnector {
 		}
 		if (stmt == null) {
 			try {
-				stmt = conn.createStatement();
+				stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			}
 			catch (Exception e) {
 				System.out.println("Error: Unable to create a statement");
@@ -58,21 +58,28 @@ public class DatabaseConnector {
 			res = stmt.executeQuery(query);
 		}
 		catch (Exception e) {
-			System.out.println("Error executing query");
+			System.out.println("DB: Error executing query: "+query+"\n Exception = "+e.getMessage());
 		}
 		
 		return res;
 	}
 	
-	public static void updateDB (String sql) throws SQLException {
-		if (conn == null) {
-			System.err.println("Error: Can't updateDB before creating a connection");
-			return;
+	public static int updateDB (String sql){
+		try {
+			if (conn == null) {
+				System.err.println("Error: Can't updateDB before creating a connection");
+				return -1;
+			}
+			if (stmt == null) {
+				stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			}
+			return stmt.executeUpdate(sql);
 		}
-		if (stmt == null) {
-			stmt = conn.createStatement();
+		catch (Exception e) {
+			System.out.println("DB: Unable to update");
 		}
-		stmt.executeUpdate(sql);
+		
+		return 0;
 	}
 	
 	public static void disconnect() {
@@ -81,7 +88,7 @@ public class DatabaseConnector {
 				conn.close();
 			}
 			catch (Exception e) {
-				System.out.println("Unable to close the connection");
+				System.out.println("DB: Unable to close the connection");
 			}
 		}
 		
@@ -90,7 +97,7 @@ public class DatabaseConnector {
 				stmt.close();
 			}
 			catch (Exception e) {
-				System.out.println("Unable to close the statement");
+				System.out.println("DB: Unable to close the statement");
 			}
 		}
 	}

@@ -1,69 +1,38 @@
-import java.sql.*;
-import java.util.Scanner;
 /**
  * @author Ankur Garg, agarg12@ncsu.edu
  */
 
 public class Home {
-
-    static final String jdbcURL 
-	= "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01";
-
     public static void main(String[] args) throws Exception{
-//    	DatabaseConnector dbc = new DatabaseConnector("agarg12", "200157990");
     	DatabaseConnector.connect();
-    	DatabaseMetaData md = DatabaseConnector.conn.getMetaData();
-    	ResultSet a = md.getTables(null, null, null, null);
-    	while(a.next()) {
-    		System.out.println(a.getString(1));
-    	}
-//    	System.out.println(a..toString());
-    	
-/*
-        DatabaseConnector dbc = new DatabaseConnector("agarg12", "200157990");
-        	
-        dbc.connect();
-        
-        
-//        UserSession us = UserSession.CreateUserSession(dbc, "dfs", "");
-        /*
-		dbc.updateDB("CREATE TABLE COFFEES1 " +
-			   "(COF_NAME VARCHAR(32), SUP_ID INTEGER, " +
-			   "PRICE FLOAT, SALES INTEGER, TOTAL INTEGER)");
-
-		// Populate the COFFEES table
-
-		dbc.updateDB("INSERT INTO COFFEES1 " +
-			   "VALUES ('Colombian', 101, 7.99, 0, 0)");
-
-		dbc.updateDB("INSERT INTO COFFEES1 " +
-			   "VALUES ('French_Roast', 49, 8.99, 0, 0)");
-
-		dbc.updateDB("INSERT INTO COFFEES1 " +
-			   "VALUES ('Espresso', 150, 9.99, 0, 0)");
-
-		dbc.updateDB("INSERT INTO COFFEES1 " +
-			   "VALUES ('Colombian_Decaf', 101, 8.99, 0, 0)");
-
-		dbc.updateDB("INSERT INTO COFFEES1 " +
-			   "VALUES ('French_Roast_Decaf', 49, 9.99, 0, 0)");
-
-		// Get data from the COFFEES table
-        */
-//        us.logout();
-    	/*
-		ResultSet rs = dbc.runQuery("SELECT COF_NAME, PRICE FROM COFFEES1");
-
-		while (rs!=null && rs.next()) {
-		    String s = rs.getString("COF_NAME");
-		    float n = rs.getFloat("PRICE");
-		    System.out.println(s + "   " + n);
-		}
-		
-//    	Runtime.getRuntime().exec("clear");
+    	StaticFunctions.Initialise();
     	UserSession us = new UserSession();
-    	us.MainView();
-    	*/
+    	Signup s = new Signup();
+    	int option = 0;
+    	
+    	while (option != 3) {
+	    	System.out.println("Select from following options:\n"
+	    			+ "1. Login\n"
+	    			+ "2. Signup\n"
+	    			+ "3. Exit");
+	    	
+	    	option = StaticFunctions.nextInt();
+	    	
+	    	switch(option) {
+	    	case 1:
+	        	us.MainView();
+	        	break;
+	    	case 2:
+	    		s.MainView();
+	    		break;
+	    	case 3:
+	    		break;
+	    	default:
+	    		System.out.println("Invalid Input");
+	    	}
+    	}
+    	StaticFunctions.closeScanner();
+    	DatabaseConnector.disconnect();
     }
 }
 

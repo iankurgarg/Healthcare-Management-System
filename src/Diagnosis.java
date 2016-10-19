@@ -1,22 +1,25 @@
 import java.sql.Date;
 import java.sql.ResultSet;
-import java.util.Scanner;
 
 public class Diagnosis {
 	private String UID;
-	private int[] DiseaseIDs;
 	private String[] DiseaseNames;
 	private Date[] DiseaseDates;
-	private Scanner sc;
+	private int num = 0;
 	private String options = "Select from following options:\n"
 			+ "1. View existing diagnosis\n"
 			+ "2. Add a diagnosis\n"
 			+ "3. Remove a diagnosis\n"
 			+ "4. Go Back";
 	
+	static String tableName = "diagnosis";
+	static String colid = "patientid";
+	static String coldid = "diseaseid";
+	static String colsince = "since";
+	
 	public Diagnosis(String ID) {
 		this.UID = ID;
-		sc = new Scanner(System.in);
+		fetchDiagnosisData();
 	}
 	
 	public void MainView() {
@@ -24,44 +27,110 @@ public class Diagnosis {
 		exit();
 	}
 	
-	public void fetchDiagnosisData () {
-		String query = "";
+	public int isSick() {
+		return num;
+	}
+	
+	private void fetchDiagnosisData () {
+		String query = "SELECT D."+coldid+", D."+colsince+" FROM "+tableName+" D WHERE D."+colid+"='"+this.UID+"'";
 		ResultSet res = DatabaseConnector.runQuery(query);
-		//Populate the DiseaseIDs and DiseaseDates based on results in res.
+		
+		try {
+			int len;
+			if (!res.next()) {
+				len = 0;
+			}
+			else {
+				res.last();
+				len = res.getRow();	
+			}
+			
+			if (len > 0) {
+				res.beforeFirst();
+				DiseaseNames = new String[len];
+				DiseaseDates = new Date[len];
+				int i = 0;
+				while (res.next()) {
+					DiseaseNames[i] = res.getString(1);
+					DiseaseDates[i++] = res.getDate(2);
+				}	
+			}
+			num = len;
+			
+		}
+		catch (Exception e) {
+			System.out.println("Unable to fetch patient diagnosis data");
+			e.printStackTrace();
+		}
 	}
 	
 	public void showOptions() {
 		int option = 0;
 		while (option != 4) {
 			System.out.println(options);
-			option = sc.nextInt();
-			if (option == 1) {
-				//call fetchDiagnosisData()
-				System.out.println("You have the following Diagnosis:");
-				for (int i = 0; i < DiseaseIDs.length; i++) {
-					System.out.print(DiseaseIDs[i]+"\t");
-					System.out.print(DiseaseNames[i]+"\t");
-					System.out.println(DiseaseDates[i]);
+			option = StaticFunctions.nextInt();
+			if (option < 1 || option > 4)
+				System.out.println("Invalid Input");
+			else if (option == 1) {
+				if (num > 0) {
+					System.out.println("You have the following Diagnosis:");
+					for (int i = 0; i < num; i++) {
+						System.out.print(DiseaseNames[i]+"\t");
+						System.out.println(DiseaseDates[i]);
+					}
+				}
+				else {
+					System.out.println("You are a well patient");
 				}
 			}
 			else if (option == 2) {
-				//Ask for Disease ID and add current date.
+				System.out.println("Enter correct Disease Name:");
+				StaticFunctions.nextLine();
+				String d = StaticFunctions.nextLine();
+				System.out.println("Enter diagnosis date (MM-DD-YYYY):");
+				String date = StaticFunctions.next();
+				addDisease(d, date);
 				
 			}
 			else if (option == 3) {
-				//Ask for Disease ID and send delete query to delete the disease
-			}
-			else {
-				System.out.println("Invalid Input");
+				System.out.println("Enter the correct disease name to be removed:");
+				String line = StaticFunctions.nextLine();
+				if (line.equals(""))
+					line = StaticFunctions.nextLine();
+				removeDisease(line);
 			}
 		}
 		return;
 	}
 	
+	private void addDisease(String disease, String d) {
+		String query = "INSERT INTO "+tableName+" VALUES('"+this.UID+"','"+disease+"',TO_DATE('"+d+"','MM-DD-YYYY'))";
+		int c = DatabaseConnector.updateDB(query);
+		if (c == 0) {
+			System.out.println("Coudn't add diagnosis, either disease id invalid or date format incorrect");
+			System.out.println(query);
+		}
+		else {
+			fetchDiagnosisData();
+			System.out.println("Diagnosis added successfully");
+		}
+	}
+	
+	private void removeDisease(String disease) {
+		if (disease.equals(""))
+			System.out.println("No such disease related to the given patient");
+		
+		String query = "DELETE FROM "+tableName+" WHERE "+colid+"='"+this.UID+"' AND "+coldid+"='"+disease+"'";
+		int r = DatabaseConnector.updateDB(query);
+		if (r == 0) {
+			System.out.println("No such disease related to the given patient");
+		}
+		else {
+			fetchDiagnosisData();
+			System.out.println("Diagnosis successfully removed");
+		}
+	}
+	
 	public void exit() {
-		sc.close();
-		DiseaseIDs = null;
-		DiseaseDates = null;
-		UID = null;
 	}
 }

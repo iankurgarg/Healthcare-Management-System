@@ -1,21 +1,23 @@
+import java.sql.Date;
 import java.sql.ResultSet;
-import java.util.Scanner;
 
 public class Profile {
 	private String UID;
-	private String Name;
+	private String FName;
+	private String LName;
 	private String Address;
+	private Date dob;
+	private String gender;
 	private String Phone;
 	private String profileOptions = "Select an option:\n"
-			+ "1. Update Name\n"
-			+ "2. Update Address\n"
-			+ "3. Update Phone\n"
-			+ "4. Go Back";
-	private Scanner sc;
+			+ "1. Update First Name\n"
+			+ "2. Update Last Name\n"
+			+ "3. Update Address\n"
+			+ "4. Update Phone\n"
+			+ "5. Go Back";
 	
 	public Profile (String ID) {
 		this.UID = ID;
-		sc = new Scanner(System.in);
 	}
 	
 	public void MainView() {
@@ -24,32 +26,33 @@ public class Profile {
 		exit();
 	}
 	
-	private void exit() {
-		UID = null;
-		Name = "";
-		Address = "";
-		Phone = "";
-		sc.close();
+	public void exit() {
 	}
 	
 	private void fetchProfile() {
 		if (UID != null) {
-			if (Name == null || Address == null || Phone == null){
-				String query = "SELECT U."+UserSession.colName+", U."+UserSession.colAddress+
-						", U."+UserSession.colPhone+" FROM "+UserSession.tableName+
-						" U WHERE U."+UserSession.colID+" = ID";
+			if (FName == null || LName == null || Address == null || Phone == null){
+				String query = "SELECT P."+UserSession.colfName+", P."+UserSession.collName+", P."+UserSession.colAddress+
+						", P."+UserSession.colPhone+", P."+UserSession.colGender+", P."+
+						UserSession.colDOB+" FROM "+UserSession.tableName+
+						" P WHERE P."+UserSession.colID+" = '"+UID+"'";
 				ResultSet res = DatabaseConnector.runQuery(query);
 				try {
-					if (res == null || res.isAfterLast())
+					if (!res.next())
 						System.err.println("Error: Couldn't fetch Patient's Profile Information");
 					else {
-						this.Name = res.getString(1);
-						this.Address = res.getString(2);
-						this.Phone = res.getString(3);
+						res.first();
+						this.FName = res.getString(1);
+						this.LName = res.getString(2);
+						this.Address = res.getString(3);
+						this.Phone = res.getString(4);
+						this.gender = res.getString(5);
+						this.dob = res.getDate(6);
 					}
 				}
 				catch (Exception e) {
 					System.out.println("Error: Unable to fetch Patient Profile Information");
+					e.printStackTrace();
 				}
 			}
 		}
@@ -60,29 +63,51 @@ public class Profile {
 		case 1:
 		{
 			String newName = "";
-			while (newName.equals("")) {
-				System.out.println("Enter new Name:");
-				newName = sc.nextLine();
+			System.out.println("Enter new First Name:");
+			StaticFunctions.nextLine();
+			newName = StaticFunctions.nextLine();
+			if (newName.equals("")) {
+				System.out.println("Name not updated");
+				break;
 			}
-			updateName(newName);
+			updateName(newName, 1);
 			break;
 		}
 		case 2:
 		{
-			String newAddress = "";
-			while (newAddress.equals("")) {
-				System.out.println("Enter new Address:");
-				newAddress = sc.nextLine();
+			String newName = "";
+			System.out.println("Enter new Last Name:");
+			StaticFunctions.nextLine();
+			newName = StaticFunctions.nextLine();
+			if (newName.equals("")) {
+				System.out.println("Name not updated");
+				break;
 			}
-			updateAddress(newAddress);
+			updateName(newName, 2);
 			break;
 		}
 		case 3:
 		{
+			String newAddress = "";
+			System.out.println("Enter new Address:");
+			StaticFunctions.nextLine();
+			newAddress = StaticFunctions.nextLine();
+			if (newAddress.equals("")) {
+				System.out.println("Address not updated");
+				break;
+			}
+			updateAddress(newAddress);
+			break;
+		}
+		case 4:
+		{
 			String newPhone = "";
-			while (newPhone.equals("")) {
-				System.out.println("Enter new Phone:");
-				newPhone = sc.nextLine();
+			System.out.println("Enter new Phone:");
+			StaticFunctions.nextLine();
+			newPhone = StaticFunctions.nextLine();
+			if (newPhone.equals("")) {
+				System.out.println("Phone not updated");
+				break;
 			}
 			updatePhone(newPhone);
 			break;
@@ -92,40 +117,81 @@ public class Profile {
 		}
 	}
 	
-	private void updateName(String newName) {
-		//TODO
-		this.Name = newName;
-		System.out.println("Name Updated");
+	public String getName() {
+		return FName+" "+LName;
+	}
+	
+	public String getAddress() {
+		return Address;
+	}
+	
+	public String getPhone() {
+		return Phone;
+	}
+	
+	private void updateName(String newName, int t) {
+		int r = -1;
+		if (t == 1) {
+			this.FName = newName;
+			String query = "UPDATE "+UserSession.tableName+" P SET "+UserSession.colfName+"='"+newName+"' WHERE "+UserSession.colID+"='"+this.UID+"'";
+			r = DatabaseConnector.updateDB(query);
+		}
+		else if (t == 2){
+			this.LName = newName;
+			String query = "UPDATE "+UserSession.tableName+" P SET "+UserSession.collName+"='"+newName+"' WHERE "+UserSession.colID+"='"+this.UID+"'";
+			r = DatabaseConnector.updateDB(query);
+		}
+		
+		if (r == 0) {
+			System.out.println("Couldn't update Name");
+		}
+		else
+			System.out.println("Name Updated");
 	}
 	
 	private void updateAddress(String newAddress) {
-		//TODO
 		this.Address = newAddress;
-		System.out.println("Address Updated");
+		String query = "UPDATE "+UserSession.tableName+" P SET "+UserSession.colAddress+"='"+newAddress+"' WHERE "+UserSession.colID+"='"+this.UID+"'";
+		int r = DatabaseConnector.updateDB(query);
+		if (r == 0) {
+			System.out.println("Couldn't update Address");
+		}
+		else
+			System.out.println("Address Updated");
 	}
 	
 	private void updatePhone(String newPhone) {
-		//TODO
 		this.Phone = newPhone;
-		System.out.println("Phone Updated");
+		String query = "UPDATE "+UserSession.tableName+" P SET "+UserSession.colPhone+"='"+newPhone+"' WHERE "+UserSession.colID+"='"+this.UID+"'";
+		int r = DatabaseConnector.updateDB(query);
+		
+		if (r == 0) {
+			System.out.println("Couldn't update Phone");
+		}
+		else
+			System.out.println("Phone Updated");
 	}
 	
 	private void viewProfileOptions() {
-		if (!(Name == null || Address == null || Phone == null)) {
-			System.out.println("Name = "+Name);
+		if (!(FName == null)) {
+			System.out.println("Name = "+FName+" "+LName);
+			System.out.println("Gender = "+gender);
+			System.out.println("Date of Birth = "+dob.toString());
 			System.out.println("Address = "+Address);
 			System.out.println("Phone = "+Phone);
 			
 			int option = 0;
-			while (option != 4) {
+			while (option != 5) {
 				System.out.println(profileOptions);
-				option = sc.nextInt();
+				option = StaticFunctions.nextInt();
+				if (option == 5)
+					break;
 				updateDetails(option);
 			}
 			return;
 		}
 		else {
-			System.err.println("Error: Name or Address or Phone is Empty");
+			System.err.println("Error: First Name is Empty");
 		}
 	}
 }

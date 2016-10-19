@@ -1,12 +1,12 @@
 import java.sql.ResultSet;
-import java.util.Scanner;
 
 public class Patient {
 	private String UID = null;
 	private Profile p = null;
 	private Diagnosis d = null;
-	private int patientType = 0;
-	private Scanner sc;
+	private Observations Obs = null;
+	private Alerts al = null;
+	private HealthSupporters hs = null;
 	private String mainOptions = "Select an option:\n"
 			+ "1. Profile\n"
 			+ "2. Diagnosis\n"
@@ -15,38 +15,40 @@ public class Patient {
 			+ "5. Health Supporters\n"
 			+ "6. Logout\n";
 	
+	static String tableName = "patient";
+	static String coluserid = "userid";
+	
 	
 	public Patient(String ID) {
-		sc = new Scanner(System.in);
-
-		ResultSet res = DatabaseConnector.runQuery("SELECT * FROM Patients P WHERE P.userID="+ID);
+		this.UID = ID;
+		ResultSet res = DatabaseConnector.runQuery("SELECT * FROM "+tableName+" P WHERE P."+coluserid+"='"+ID+"'");
 		try {
-			if (res == null || res.isLast() || res.isAfterLast()) {
-				throw new Exception ("Error: Invalid Patient User Id");
-			}
-			else {
-				patientType = res.getInt(2);
+			if (res.isAfterLast()) {
+				System.err.println("Error: Invalid Patient User Id");
+				System.exit(-1);
 			}
 		}
 		catch (Exception e) {
-			
+			System.out.println("Error: Unable to fetch patient information");
+			System.exit(-1);
 		}
 
 		UID = ID;
 		p = new Profile(UID);
 		d = new Diagnosis(UID);
+//		Obs = new Observations(UID);
+//		al = new Alerts();
+//		hs = new HealthSupporters(UID);
 	}
 	
 	public int MainView() {
-		if (patientType == 0) {
-			//Well Patient;
+		if (d.isSick() == 0) {
 			showMainOptions();
 		}
 		else {
-			// Sick Patient
-			// check for health supporter first.
-			// if no health supporter ask the patient to enter health supporter details.
-			// After details entered:
+//			if (!hs.hasHS()) {
+//				hs.SickPatientWithNoHSView();
+//			}
 			showMainOptions();
 		}
 		exit();
@@ -55,7 +57,6 @@ public class Patient {
 	
 	private void exit() {
 		this.UID = null;
-		sc.close();
 	}
 	
 	private void showMainOptions() {
@@ -63,7 +64,7 @@ public class Patient {
 			int option = 0;
 			while (option != 6) {
 				System.out.println(mainOptions);
-				option = sc.nextInt();
+				option = StaticFunctions.nextInt();
 				switch (option) {
 				case 1:
 					p.MainView();
@@ -71,17 +72,20 @@ public class Patient {
 				case 2:
 					d.MainView();
 					break;
-				case 3:
-					System.out.println("Health Indicator");
+/*				case 3:
+					Obs.MainView();
 					break;
 				case 4:
-					System.out.println("Alerts");
+					al.MainView();
 					break;
 				case 5:
-					System.out.println("Health Supporter");
+					hs.MainView();
+					break;
+*/				case 6:
 					break;
 				default:
 					System.out.println("Invalid input\n");
+					break;
 				}
 			}
 		}
