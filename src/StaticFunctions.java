@@ -11,7 +11,12 @@ public class StaticFunctions {
 	}
 	
 	public static int nextInt() {
-		return sc.nextInt();
+		if (sc.hasNextInt())
+			return sc.nextInt();
+		else {
+			sc.nextLine();
+		}
+		return -1;
 	}
 	
 	public static String next() {

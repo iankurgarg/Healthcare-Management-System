@@ -1,29 +1,38 @@
 import java.sql.Date;
 import java.sql.ResultSet;
-import java.util.Scanner;
 
 public class HealthSupporters {
 	private String patientID;
+	private int ptype;
 	private Profile primaryHS;
 	private Profile secondaryHS;
 	private Date since1;
 	private Date since2;
-	private Scanner sc;
+	static String primaryTableName = "hasprimary";
+	static String secTableName = "hassecondary";
+	static String pcolpatientid = "puserid";
+	static String pcolhsid = "hsuserid";
+	static String pcolsince = "since";
+	static String scolpatientid = "puserid";
+	static String scolhsid = "shsuserid";
+	static String scolsince = "since";
 	
-	public HealthSupporters(String PatientID) {
+	
+	public HealthSupporters(String PatientID, int type) {
 		this.patientID = PatientID;
-		sc = new Scanner(System.in);
+		this.ptype = type;
 		fetchHealthSupporterInformation();
 	}
 	
 	public void MainView() {
 		int option = 0;
-		while(option != 3) {
+		while(option != 4) {
 			System.out.println("Choose from the following options:\n"
 					+ "1. View Health Supporters\n"
 					+ "2. Add/Change Health Supporters.\n"
-					+ "3. Go Back");
-			option = sc.nextInt();
+					+ "3. Remove Health Supporters.\n"
+					+ "4. Go Back");
+			option = StaticFunctions.nextInt();
 			switch(option) {
 			case 1:
 				viewHealthSupporters();
@@ -32,6 +41,9 @@ public class HealthSupporters {
 				updateHS();
 				break;
 			case 3:
+				deleteHS();
+				break;
+			case 4:
 				break;
 			default:
 				System.out.println("Invalid Input, enter again!");
@@ -49,69 +61,105 @@ public class HealthSupporters {
 	
 	public void SickPatientWithNoHSView() {
 		if (!hasHS()) {
-			System.out.println("Enter Health Supporter Details:\n");
-			updateHS(0);
+			System.out.println("Enter Primary Health Supporter Details:\n");
+			updateHS(1);
 		}
 	}
 	
 	private void exit() {
-		primaryHS.exit();
-		secondaryHS.exit();
-		sc.close();
+		if (primaryHS != null)
+			primaryHS.exit();
+		if (secondaryHS != null)
+			secondaryHS.exit();
 	}
 
 	private void fetchHealthSupporterInformation() {
-		String query1 = "SELECT HP.PHSID, HP.since FROM hasprimary HP WHERE HP.patientID = "+this.patientID;
+		String query1 = "SELECT HP."+pcolhsid+", HP."+pcolsince+" FROM "+primaryTableName+
+				" HP WHERE HP."+pcolpatientid+" = '"+this.patientID+"'";
 		ResultSet res1 = DatabaseConnector.runQuery(query1);
 		
-		String query2 = "SELECT HS.SHSID, HS.since FROM hasseconday HS WHERE HS.patientID = "+this.patientID;
+		String query2 = "SELECT HS."+scolhsid+", HS."+scolsince+" FROM "+secTableName+
+				" HS WHERE HS."+scolpatientid+" = '"+this.patientID+"'";
 		ResultSet res2 = DatabaseConnector.runQuery(query2);
+		primaryHS = null;
+		secondaryHS = null;
 		
 		try {
-			if (!(res1.isBeforeFirst() && res1.getRow() == 0)) {
+			if ((res1.next())) {
+				res1.first();
 				primaryHS = new Profile(res1.getString(1));
 				since1 = res1.getDate(2);
 			}
 			
-			if (!(res2.isBeforeFirst() && res2.getRow() == 0)) {
+			if ((res2.next())) {
+				res2.first();
 				secondaryHS = new Profile(res2.getString(1));
 				since2 = res2.getDate(2);
 			}
 		}
 		catch (Exception e) {
-			System.err.println("Error: Unable to fetch Health Supporter Information for Patient-"+patientID);
+			System.out.println("Error: Unable to fetch Health Supporter Information for Patient-"+patientID);
 		}
+	}
+	
+	private void addHS(int type) {
+		String hsid="";
+		String d;
+		if (type == 1) {
+			System.out.println("Enter new Primary Health Supporter ID:");
+			hsid = StaticFunctions.next();
+			System.out.println("Enter Authorization Date:");
+			d = StaticFunctions.next();
+			String query = "INSERT INTO "+primaryTableName+" VALUES ('"+patientID+"','"
+					+hsid+"',TO_DATE('"+d+"','MM-DD-YYYY'))";
+			int r = DatabaseConnector.updateDB(query);
+			if (r == 0) {
+				System.out.println("Couldn't update primary HS - possible invalid HS userid");
+			}
+		}
+		else if (type == 2){
+			System.out.println("Enter new Secondary Health Supporter ID:");
+			hsid = StaticFunctions.next();
+			System.out.println("Enter Authorization Date:");
+			d = StaticFunctions.next();
+			String query = "INSERT INTO "+secTableName+" VALUES ('"+patientID+"','"
+					+hsid+"',TO_DATE('"+d+"','MM-DD-YYYY'))";
+			int r = DatabaseConnector.updateDB(query);
+			if (r == 0) {
+				System.out.println("Couldn't update secondary HS - possible invalid HS userid");
+			}
+		}
+		fetchHealthSupporterInformation();
 	}
 	
 	private void updateHS(int type) {
 		String hsid="";
-		Date d;
-		if (type == 0) {
+		String d;
+		if (type == 1) {
 			System.out.println("Enter new Primary Health Supporter ID:");
-			hsid = sc.next();
+			hsid = StaticFunctions.next();
 			System.out.println("Enter Authorization Date:");
-			d = java.sql.Date.valueOf(sc.next());
-			String query = "UPDATE hasprimary SET HSUSERID="
-					+hsid+",since="+d+" WHERE patientid="+patientID;
+			d = StaticFunctions.next();
+			String query = "UPDATE "+primaryTableName+" SET "+pcolhsid+"='"
+					+hsid+"',"+pcolsince+"=TO_DATE('"+d+"','MM-DD-YYYY') WHERE "+pcolpatientid+"='"+patientID+"'";
 			int r = DatabaseConnector.updateDB(query);
 			if (r == 0) {
-				System.out.println("Error updating primary health supporter");
+				System.out.println("Couldn't update primary HS - possible invalid HS userid");
 			}
 		}
-		else {
+		else if (type == 2){
 			System.out.println("Enter new Secondary Health Supporter ID:");
-			hsid = sc.next();
+			hsid = StaticFunctions.next();
 			System.out.println("Enter Authorization Date:");
-			d = java.sql.Date.valueOf(sc.next());
-			String query = "UPDATE hassecondary SET HSUSERID="
-					+hsid+",since="+d+" WHERE patientid="+patientID;
+			d = StaticFunctions.next();
+			String query = "UPDATE "+secTableName+" SET "+scolhsid+"='"
+					+hsid+"',"+scolsince+"=TO_DATE('"+d+"','MM-DD-YYYY') WHERE "+scolpatientid+"='"+patientID+"'";
 			int r = DatabaseConnector.updateDB(query);
 			if (r == 0) {
-				System.out.println("Error updating secondary health supporter");
+				System.out.println("Couldn't update secondary HS - possible invalid HS userid");
 			}
 		}
 		fetchHealthSupporterInformation();
-		
 	}
 	
 	private void updateHS() {
@@ -121,30 +169,132 @@ public class HealthSupporters {
 					+ "1. Update Primary HS\n"
 					+ "2. Update Secondary HS\n"
 					+ "3. Go Back");
-			option = sc.nextInt();
-			if (option < 1 || option > 2) {
+			option = StaticFunctions.nextInt();
+			if (option < 1 || option > 3) {
 				System.out.println("Invalid Selection");
 				continue;
 			}
-			updateHS(option);
+			else if (option == 1) {
+				if (primaryHS == null)
+					addHS(1);
+				else
+					updateHS(1);
+			}
+			else if (option == 2) {
+				if (secondaryHS == null)
+					addHS(2);
+				else
+					updateHS(2);	
+			}
+				
+		}
+	}
+	
+	private void deleteHS() {
+		if (ptype == 1) {
+			if (secondaryHS == null) {
+				System.out.println("Sick Patient can't delete Primary Health Supporter");
+			}
+			else {
+				int option = 0;
+				while (option != 2) {
+					System.out.println("Choose from following:\n"
+							+ "1. Delete Secondary HS\n"
+							+ "2. Go Back");
+					option = StaticFunctions.nextInt();
+					if (option == 1) {
+						String query = "DELETE FROM "+secTableName+" HS WHERE HS."+scolpatientid+"='"+this.patientID+"'";
+						int r = DatabaseConnector.updateDB(query);
+						if (r == 0) {
+							System.out.println("Unable to delete HS");
+						}
+						else {
+							fetchHealthSupporterInformation();
+							System.out.println("Secondary HS deleted");
+							break;
+						}
+					}
+					else if (option < 1 || option > 2) {
+						System.out.println("Invalid Selection");
+					}
+				}
+			}
+		}
+		else if (ptype == 0) {
+			int option = 0;
+			while (option != 3) {
+				System.out.println("Choose from following:\n"
+						+ "1. Delete Primary HS\n"
+						+ "2. Delete Secondary HS\n"
+						+ "3. Go Back");
+				option = StaticFunctions.nextInt();
+				if (option == 1) {
+					if (primaryHS != null) {
+						String query = "DELETE FROM "+primaryTableName+" HS WHERE HS."+pcolpatientid+"='"+this.patientID+"'";
+						int r = DatabaseConnector.updateDB(query);
+						
+						if (r == 0) {
+							System.out.println("Unable to delete HS");
+						}
+						else {
+							fetchHealthSupporterInformation();
+							System.out.println("Primary HS deleted");
+							break;
+						}
+					}
+					else {
+						System.out.println("No Primary HS");
+					}
+				}
+				else if (option == 2) {
+					if (secondaryHS != null) {
+						String query = "DELETE FROM "+secTableName+" HS WHERE HS."+scolpatientid+"='"+this.patientID+"'";
+						int r = DatabaseConnector.updateDB(query);
+						if (r == 0) {
+							System.out.println("Unable to delete HS");
+						}
+						else {
+							fetchHealthSupporterInformation();
+							System.out.println("Secondary HS deleted");
+							break;
+						}
+					}
+					else {
+						System.out.println("No Secondary HS");
+					}
+				}
+				else if (option < 1 || option > 3) {
+					System.out.println("Invalid Selection");
+				}
+			}
 		}
 	}
 	
 	private void viewHealthSupporters() {
 		if (primaryHS != null) {
 			System.out.println("Primary:");
-			System.out.print("Name: "+primaryHS.getName());
+			System.out.println("Name: "+primaryHS.getName());
+			System.out.println("Gender: "+primaryHS.getGender());
+			System.out.println("Date of Birth: "+primaryHS.getDOB().toString());
 			System.out.println("Address: "+primaryHS.getAddress());
 			System.out.println("Phone: "+primaryHS.getPhone());
 			System.out.println("Auth Date: "+since1.toString());
 		}
+		else {
+			System.out.println("No Primary Health Supporter");
+		}
 		
 		if (secondaryHS != null) {
 			System.out.println("Secondary:");
-			System.out.print("Name: "+secondaryHS.getName());
+			System.out.println("Name: "+secondaryHS.getName());
+			System.out.println("Gender: "+secondaryHS.getGender());
+			System.out.println("Date of Birth: "+secondaryHS.getDOB().toString());
 			System.out.println("Address: "+secondaryHS.getAddress());
 			System.out.println("Phone: "+secondaryHS.getPhone());
 			System.out.println("Auth Date: "+since2.toString());
+		}
+		else {
+			System.out.println("No Secondary Health Supporter");
 		}
 	}
 }

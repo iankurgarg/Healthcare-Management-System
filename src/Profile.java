@@ -18,10 +18,10 @@ public class Profile {
 	
 	public Profile (String ID) {
 		this.UID = ID;
+		fetchProfile();
 	}
 	
 	public void MainView() {
-		fetchProfile();
 		viewProfileOptions();
 		exit();
 	}
@@ -127,6 +127,14 @@ public class Profile {
 	
 	public String getPhone() {
 		return Phone;
+	}
+	
+	public String getGender() {
+		return gender;
+	}
+	
+	public Date getDOB() {
+		return dob;
 	}
 	
 	private void updateName(String newName, int t) {

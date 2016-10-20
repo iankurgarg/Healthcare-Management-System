@@ -31,7 +31,7 @@ public class DatabaseConnector {
 		}
 		
 		try {
-			stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		}
 		catch (Exception e) {
 			System.out.println("Unable to create a statement for the connection");
@@ -40,22 +40,23 @@ public class DatabaseConnector {
 	}
 	
 	public static ResultSet runQuery (String query) {
+		Statement stmt1 = null;
 		ResultSet res = null;
 		
 		if (conn == null) {
 			System.err.println("Error: Can't runQuery before creating a connection");
 			return null;
 		}
-		if (stmt == null) {
+		if (stmt1 == null) {
 			try {
-				stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+				stmt1 = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			}
 			catch (Exception e) {
 				System.out.println("Error: Unable to create a statement");
 			}
 		}
 		try {
-			res = stmt.executeQuery(query);
+			res = stmt1.executeQuery(query);
 		}
 		catch (Exception e) {
 			System.out.println("DB: Error executing query: "+query+"\n Exception = "+e.getMessage());
@@ -65,18 +66,19 @@ public class DatabaseConnector {
 	}
 	
 	public static int updateDB (String sql){
+		Statement stmt1 = null;
 		try {
 			if (conn == null) {
 				System.err.println("Error: Can't updateDB before creating a connection");
 				return -1;
 			}
-			if (stmt == null) {
-				stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			if (stmt1 == null) {
+				stmt1 = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			}
-			return stmt.executeUpdate(sql);
+			return stmt1.executeUpdate(sql);
 		}
 		catch (Exception e) {
-			System.out.println("DB: Unable to update");
+			System.out.println("DB: Unable to update: "+sql);
 		}
 		
 		return 0;

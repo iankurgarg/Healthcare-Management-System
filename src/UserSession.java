@@ -62,7 +62,7 @@ public class UserSession {
 		if (rs == null)
 			return -1;
 		try {
-			if(rs.isLast() || rs.isAfterLast())
+			if(!rs.next())
 				return -1;
 		}
 		catch (Exception e) {

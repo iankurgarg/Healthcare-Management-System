@@ -13,7 +13,7 @@ public class Patient {
 			+ "3. Health Indicator\n"
 			+ "4. Alerts\n"
 			+ "5. Health Supporters\n"
-			+ "6. Logout\n";
+			+ "6. Logout";
 	
 	static String tableName = "patient";
 	static String coluserid = "userid";
@@ -38,7 +38,7 @@ public class Patient {
 		d = new Diagnosis(UID);
 //		Obs = new Observations(UID);
 //		al = new Alerts();
-//		hs = new HealthSupporters(UID);
+		hs = new HealthSupporters(UID, d.isSick());
 	}
 	
 	public int MainView() {
@@ -46,9 +46,9 @@ public class Patient {
 			showMainOptions();
 		}
 		else {
-//			if (!hs.hasHS()) {
-//				hs.SickPatientWithNoHSView();
-//			}
+			if (!hs.hasHS()) {
+				hs.SickPatientWithNoHSView();
+			}
 			showMainOptions();
 		}
 		exit();
@@ -78,10 +78,10 @@ public class Patient {
 				case 4:
 					al.MainView();
 					break;
-				case 5:
+*/				case 5:
 					hs.MainView();
 					break;
-*/				case 6:
+				case 6:
 					break;
 				default:
 					System.out.println("Invalid input\n");
