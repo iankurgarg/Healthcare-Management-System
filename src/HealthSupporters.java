@@ -61,8 +61,8 @@ public class HealthSupporters {
 	
 	public void SickPatientWithNoHSView() {
 		if (!hasHS()) {
-			System.out.println("Enter Primary Health Supporter Details:\n");
-			updateHS(1);
+			System.out.println("Must enter Primary Health Supporter Details");
+			addHS(1);
 		}
 	}
 	
@@ -114,7 +114,7 @@ public class HealthSupporters {
 					+hsid+"',TO_DATE('"+d+"','MM-DD-YYYY'))";
 			int r = DatabaseConnector.updateDB(query);
 			if (r == 0) {
-				System.out.println("Couldn't update primary HS - possible invalid HS userid");
+				System.out.println("Couldn't add primary HS - possible invalid HS userid");
 			}
 		}
 		else if (type == 2){
@@ -126,7 +126,7 @@ public class HealthSupporters {
 					+hsid+"',TO_DATE('"+d+"','MM-DD-YYYY'))";
 			int r = DatabaseConnector.updateDB(query);
 			if (r == 0) {
-				System.out.println("Couldn't update secondary HS - possible invalid HS userid");
+				System.out.println("Couldn't add secondary HS - possible invalid HS userid");
 			}
 		}
 		fetchHealthSupporterInformation();

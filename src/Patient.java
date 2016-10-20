@@ -46,7 +46,7 @@ public class Patient {
 			showMainOptions();
 		}
 		else {
-			if (!hs.hasHS()) {
+			while (!hs.hasHS()) {
 				hs.SickPatientWithNoHSView();
 			}
 			showMainOptions();
