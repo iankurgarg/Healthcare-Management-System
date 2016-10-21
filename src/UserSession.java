@@ -5,6 +5,7 @@ public class UserSession {
 	private String password;
 	private int userType;
 	private Patient p;
+	private HS h;
 	
 	static String tableName = "person";
 	static String colID = "userid";
@@ -44,7 +45,8 @@ public class UserSession {
 					p.MainView();
 				}
 				else {
-					//Health Supporter
+					h = new HS(this.userid);
+					h.MainView();
 				}
 			}
 			else {

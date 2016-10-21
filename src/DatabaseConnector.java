@@ -59,7 +59,7 @@ public class DatabaseConnector {
 			res = stmt1.executeQuery(query);
 		}
 		catch (Exception e) {
-			System.out.println("DB: Error executing query: "+query+"\n Exception = "+e.getMessage());
+			System.out.println("DB: Error executing query");
 		}
 		
 		return res;
@@ -78,7 +78,7 @@ public class DatabaseConnector {
 			return stmt1.executeUpdate(sql);
 		}
 		catch (Exception e) {
-			System.out.println("DB: Unable to update: "+sql);
+			System.out.println("DB: Unable to update ");
 		}
 		
 		return 0;

@@ -180,14 +180,18 @@ public class Profile {
 			System.out.println("Phone Updated");
 	}
 	
+	public void viewProfile(){
+		System.out.println("Name = "+FName+" "+LName);
+		System.out.println("Gender = "+gender);
+		System.out.println("Date of Birth = "+dob.toString());
+		System.out.println("Address = "+Address);
+		System.out.println("Phone = "+Phone);
+	}
+	
 	private void viewProfileOptions() {
 		if (!(FName == null)) {
-			System.out.println("Name = "+FName+" "+LName);
-			System.out.println("Gender = "+gender);
-			System.out.println("Date of Birth = "+dob.toString());
-			System.out.println("Address = "+Address);
-			System.out.println("Phone = "+Phone);
-			
+			viewProfile();
+
 			int option = 0;
 			while (option != 5) {
 				System.out.println(profileOptions);

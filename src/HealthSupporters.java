@@ -25,6 +25,7 @@ public class HealthSupporters {
 	}
 	
 	public void MainView() {
+		fetchHealthSupporterInformation();
 		int option = 0;
 		while(option != 4) {
 			System.out.println("Choose from the following options:\n"

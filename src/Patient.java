@@ -36,7 +36,7 @@ public class Patient {
 		UID = ID;
 		p = new Profile(UID);
 		d = new Diagnosis(UID);
-//		Obs = new Observations(UID);
+		Obs = new Observations(UID);
 //		al = new Alerts();
 		hs = new HealthSupporters(UID, d.isSick());
 	}
@@ -72,10 +72,10 @@ public class Patient {
 				case 2:
 					d.MainView();
 					break;
-/*				case 3:
+				case 3:
 					Obs.MainView();
 					break;
-				case 4:
+/*				case 4:
 					al.MainView();
 					break;
 */				case 5:
