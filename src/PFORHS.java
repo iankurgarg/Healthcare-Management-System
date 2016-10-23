@@ -10,9 +10,13 @@ public class PFORHS {
 			+ "1. View Patient Profile\n"
 			+ "2. View Patient Records\n"
 			+ "3. Add Specific Reccommendation\n"
-			+ "4. View Alerts"
-			+ "5. Clear Alerts"
+			+ "4. View Alerts\n"
+			+ "5. Clear Alerts\n"
 			+ "6. Go Back";
+	private String alert1 = "";
+	private String alert2 = "";
+	private Date alert1d = null;
+	private Date alert2d = null;
 	
 	public PFORHS(String patientID, Date auth) {
 		this.patientid = patientID;
@@ -44,10 +48,10 @@ public class PFORHS {
 					addRecco();
 					break;
 				case 4:
-					clearAlerts();
+					viewAlerts();
 					break;
 				case 5:
-					viewAlerts();
+					clearAlerts();
 					break;
 				case 6:
 					break;
@@ -101,14 +105,93 @@ public class PFORHS {
 		}
 	}
 	
-	private void viewAlerts() {
-		// Fetch all alerts 
-		// View them
+	private void fetchAlerts() {
+		String query = "SELECT A."+Alerts.colAlertType+", A."+Alerts.colmsg+", A."+Alerts.coldatec+" FROM "
+				+Alerts.atableName+" A WHERE A."+Alerts.colpatientID+"='"+this.patientid+"'";
+		ResultSet res = DatabaseConnector.runQuery(query);
+		
+		try {
+			if (res.next()) {
+				res.beforeFirst();
+				while(res.next()) {
+					String type = res.getString(1);
+					if (type.equals("outside limit")) {
+						alert1 = res.getString(2);
+						alert1d = res.getDate(3);
+					}
+					else if (type.equals("low activity")) {
+						alert2 = res.getString(2);
+						alert2d = res.getDate(3);
+					}
+				}
+			}
+			else {
+				System.out.println("No active alerts for the patient "+this.patientid);
+			}
+		} catch (Exception e) {
+			System.out.println("Unable to fetch alerts for the patient");
+		}
+	}
+	
+	public void viewAlerts() {
+		fetchAlerts();
+		System.out.println("Alerts:");
+		int i = 1;
+		if (!alert1.equals("")) {
+			System.out.println(i+". "+alert1+" - "+alert1d.toString());
+			i++;
+		}
+		if (!alert2.equals("")) {
+			System.out.println(i+". "+alert2+" - "+alert2d.toString());
+		}
 	}
 	
 	private void clearAlerts() {
-		//fetch all alerts,
-		// if no alerts , print msg no existing alerts
-		// else clear all alerts and print msg, alerts cleared.
+		viewAlerts();
+		if (alert1.equals("") && alert2.equals("")) {
+			System.out.println("No Alerts to clear");
+		}
+		else {
+			System.out.println("Enter alert number to clear:");
+			int option = StaticFunctions.nextInt();
+			if (option == 1) {
+				if(alert1.equals("")) {
+					String query = "DELETE FROM "+Alerts.atableName+" WHERE "+Alerts.colpatientID+"='"+
+							this.patientid+"' AND "+Alerts.colAlertType+"='low activity'";
+					int r = DatabaseConnector.updateDB(query);
+					if (r == 0)
+						System.out.println("Couldn't clear alert");
+					else
+						System.out.println("Alert cleared.");
+				}
+				else {
+					String query = "DELETE FROM "+Alerts.atableName+" WHERE "+Alerts.colpatientID+"='"+
+							this.patientid+"' AND "+Alerts.colAlertType+"='outside limit'";
+					int r = DatabaseConnector.updateDB(query);
+					if (r == 0)
+						System.out.println("Couldn't clear alert");
+					else
+						System.out.println("Alert cleared.");
+				}
+			}
+			else if (option == 2) {
+				if (!alert2.equals("")) {
+					String query = "DELETE FROM "+Alerts.atableName+" WHERE "+Alerts.colpatientID+"='"+
+							this.patientid+"' AND "+Alerts.colAlertType+"='low activity'";
+					int r = DatabaseConnector.updateDB(query);
+					if (r == 0)
+						System.out.println("Couldn't clear alert");
+					else
+						System.out.println("Alert cleared.");
+				}
+				else {
+					System.out.println("Invalid Selection");
+				}
+			}
+			else {
+				System.out.println("Invalid Selection");
+			}
+			
+		}
 	}
 }
