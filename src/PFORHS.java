@@ -69,7 +69,7 @@ public class PFORHS {
 		StaticFunctions.nextLine();
 		String obsName = StaticFunctions.nextLine();
 		
-		String query = "SELECT M."+Observations.mcolobstype+", M."+Observations.mcolupper+", M."+Observations.mcollower
+		String query = "SELECT M."+Observations.mcolobstype+", M."+Observations.mcolul+", M."+Observations.mcolll
 				+", M."+Observations.mcolfreq+" FROM "+Observations.mtableName+" M WHERE M."
 				+Observations.mcolobsname+" = '"+obsName+"'";
 		ResultSet res = DatabaseConnector.runQuery(query);

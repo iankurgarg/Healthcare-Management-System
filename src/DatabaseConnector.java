@@ -1,4 +1,5 @@
 import java.sql.*;
+//import java.util.Scanner;
 
 public class DatabaseConnector {
 	private static final String jdbcURL = "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01";
@@ -14,7 +15,7 @@ public class DatabaseConnector {
 	}
 	
 	public static void connect() {
-		
+//		Scanner sc = new Scanner(System.in);
 		try {
 			Class.forName("oracle.jdbc.driver.OracleDriver");
 		}
@@ -24,6 +25,10 @@ public class DatabaseConnector {
 		}
 		
 		try {
+//			System.out.println("Enter oracle server username:");
+//			String us = sc.next();
+//			System.out.println("Enter password:");
+//			String pass = sc.next();
 			conn = DriverManager.getConnection(jdbcURL, user, password);
 		}
 		catch (Exception e) {
@@ -82,6 +87,16 @@ public class DatabaseConnector {
 		}
 		
 		return 0;
+	}
+	
+	public static void callVoidProcedure(String sql) {
+		try {
+			CallableStatement cStmt = conn.prepareCall(sql);
+			cStmt.execute();
+			
+		} catch (SQLException e) {
+			System.out.println("Unable to call the procedure: "+sql);
+		}
 	}
 	
 	public static void disconnect() {

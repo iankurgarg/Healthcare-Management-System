@@ -2,23 +2,43 @@ import java.sql.ResultSet;
 
 public class Observations {
 	private String[] ObservationNames;
-	private String[] OridnalObs;
+//	private String[] OridnalObs;
 	private String[] ObsTypes;
 	private int[] upperLimit;
 	private int[] lowerlimit;
 	private int[] frequency;
 	private Record R;
 	
-	static String obstableName = "observations";
 	static String smtableName = "phassm";
-	
 	static String smcolpatientid = "patientid";
+	static String smcolobsname = "obsname";
+	static String smcolobstype = "obstype";
+	static String smcolobsvalue = "obsvalue";
+	static String smcolfreq = "freq";
+	static String smcolul = "upperlimit";
+	static String smcolll = "lowerlimit";
+
 	static String mtableName = "measure";
 	static String mcolobsname = "obsname";
 	static String mcolobstype = "obstype";
-	static String mcolupper = "upperlimit";
-	static String mcollower = "lowerlimit";
+	static String mcolul = "upperlimit";
+	static String mcolll = "lowerlimit";
 	static String mcolfreq = "freq";
+	
+	static String dhotablename = "dhasobs";
+	static String dhocoldid = "diseaseid";
+	static String dhocolobsname = "obsname";
+	static String dhocolobstype = "obstype";
+	static String dhocolul = "upperlimit";
+	static String dhocolll = "lowerlimit";
+	static String dhocolfreq = "freq";
+	
+	static String gotableName ="generalobs";
+	static String gocolobsname = "obsname";
+	static String gocolobstype = "obstype";
+	static String gocolul = "upperlimit";
+	static String gocolll = "lowerlimit";
+	static String gocolfreq = "freq";
 	
 	private String UID;
 	
@@ -82,7 +102,7 @@ public class Observations {
 									entryDate+"','MM/DD/YYYY hh/mi/ss'))";
 							int r = DatabaseConnector.updateDB(query1);
 							if (r==0) {
-								System.out.println("Couldn't add record");
+								System.out.println("Couldn't add record - Invalid input");
 							}
 							else {
 								System.out.println("Record Added");
@@ -99,7 +119,23 @@ public class Observations {
 	}
 
 	private void GetObservationTypes() {
-		String subquery1 = "(select hspm.obsname,hspm.obstype,hspm.freq,hspm.upperlimit,hspm.lowerlimit "+
+		
+		String query1 = "select hspm."+smcolobsname+",hspm."+smcolobstype+",hspm."+smcolul+",hspm."+smcolll+
+				",hspm."+smcolfreq+" from "+smtableName+" hspm where hspm."+smcolpatientid+" = '"+this.UID+"'";
+		String query2 = "SELECT DHO."+dhocolobsname+", DHO."+dhocolobstype+", DHO."+dhocolul+", DHO."+dhocolll+
+				", DHO."+dhocolfreq+" FROM "+dhotablename+" DHO WHERE DHO."+dhocoldid+" IN (SELECT DI."+
+				Diagnosis.coldid+" FROM "+Diagnosis.tableName+" DI WHERE DI."+Diagnosis.colid+"='"+this.UID+
+				"') AND DHO."+dhocolobsname+" NOT IN (select hspm."+smcolobsname+" from "+smtableName+
+				" hspm where hspm."+smcolpatientid+" = '"+this.UID+"')";
+		
+		String query3 = "SELECT GO."+gocolobsname+", GO."+gocolobstype+", GO."+gocolul+", GO."+gocolll+", GO."+
+				gocolfreq+" FROM "+gotableName+" GO WHERE GO."+gocolobsname+" NOT IN (SELECT D."+dhocolobsname+
+				" FROM "+dhotablename+" D WHERE D."+dhocoldid+" IN (SELECT DI."+Diagnosis.coldid+" FROM "+
+				Diagnosis.tableName+" DI WHERE DI."+Diagnosis.colid+" = '"+this.UID+"')) AND GO."+gocolobsname+
+				" NOT IN (SELECT SR."+smcolobsname+" FROM "+smtableName+" SR WHERE SR."+smcolpatientid+" ='"+
+				this.UID+"')";
+		
+/*		String subquery1 = "(select hspm.obsname,hspm.obstype,hspm.freq,hspm.upperlimit,hspm.lowerlimit "+
 				"from "+smtableName+" hspm where hspm."+smcolpatientid+" = '"+UID+"')";
 		String subq21 = "(select m.obsname,m.obstype from measure m where m.obsname IN "+
 				"( (select do.obsname from dhasobs do where do.diseaseid IN "+
@@ -111,6 +147,8 @@ public class Observations {
 		String subq20 = "(select final.obsname,final.obstype,final.freq,final.upperlimit,final.lowerlimit "+
 					"from measure final," + subq2+" Q where final.obsname = Q.obsname and final.obstype = Q.obstype)";
 		String query = subquery1+" UNION "+subq20;
+*/
+		String query = "("+query1+") UNION ("+query2+") UNION ("+query3+")";
 		
 		ResultSet res = DatabaseConnector.runQuery(query);
 		try {

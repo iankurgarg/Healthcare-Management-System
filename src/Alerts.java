@@ -16,6 +16,9 @@ public class Alerts {
 	static String coldatec = "generatedate";
 	static String arcoldateclear = "cleardate";
 	
+	static String procedureAlert1 = "create_alert";
+	static String procedureAlert2 = "create_alert2";
+	
 	
 	public Alerts(String patientID){
 		this.patientUID = patientID;
@@ -40,15 +43,16 @@ public class Alerts {
 	}
 	
 	private void viewAlerts() {
+		generateAlerts();
 		fetchAlerts();
 		System.out.println("Alerts:");
 		int i = 1;
 		if (!alert1.equals("")) {
-			System.out.println(i+". "+alert1+" - "+alert1d.toString());
+			System.out.println(i+". Outside the limit - "+alert1+" - "+alert1d.toString());
 			i++;
 		}
 		if (!alert2.equals("")) {
-			System.out.println(i+". "+alert2+" - "+alert2d.toString());
+			System.out.println(i+". Low Activity - "+alert2+" - "+alert2d.toString());
 		}
 	}
 	
@@ -81,6 +85,10 @@ public class Alerts {
 	}
 	
 	private void generateAlerts() {
-		// Call the procedure
+		String query = "{CALL "+procedureAlert1+"() }";
+		DatabaseConnector.callVoidProcedure(query);
+		
+		query = "{CALL "+procedureAlert2+"() }";
+		DatabaseConnector.callVoidProcedure(query);
 	}
 }
