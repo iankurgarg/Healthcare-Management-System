@@ -1,5 +1,10 @@
 /**
  * @author Ankur Garg, agarg12@ncsu.edu
+ * Team Members:
+ * Ankur Garg, agarg12
+ * Sanket Shahane, svshahan
+ * Aneesh Gupta, agupta27
+ * Chinmoy Baruah, cbaruah
  */
 
 public class Home {

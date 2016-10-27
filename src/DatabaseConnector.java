@@ -23,11 +23,12 @@ public class DatabaseConnector {
 		}
 		
 		try {
+			/*
 			System.out.println("Enter oracle server username:");
 			user = StaticFunctions.next();
 			System.out.println("Enter password:");
-			password = StaticFunctions.next();
-
+			password = StaticFunctions.next();*/
+			
 			conn = DriverManager.getConnection(jdbcURL, user, password);
 		}
 		catch (Exception e) {
