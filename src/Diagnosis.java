@@ -16,6 +16,7 @@ public class Diagnosis {
 	static String colid = "patientid";
 	static String coldid = "diseaseid";
 	static String colsince = "since";
+	static String colenddate = "enddate";
 	
 	public Diagnosis(String ID) {
 		this.UID = ID;
@@ -32,9 +33,9 @@ public class Diagnosis {
 	}
 	
 	private void fetchDiagnosisData () {
-		String query = "SELECT D."+coldid+", D."+colsince+" FROM "+tableName+" D WHERE D."+colid+"='"+this.UID+"'";
+		String query = "SELECT D."+coldid+", D."+colsince+" FROM "+tableName+" D WHERE D."+colid+"='"+this.UID+
+				"' AND D."+colenddate+" IS NULL";
 		ResultSet res = DatabaseConnector.runQuery(query);
-		
 		try {
 			int len;
 			if (!res.next()) {
@@ -60,7 +61,6 @@ public class Diagnosis {
 		}
 		catch (Exception e) {
 			System.out.println("Unable to fetch patient diagnosis data");
-			e.printStackTrace();
 		}
 	}
 	
@@ -104,7 +104,7 @@ public class Diagnosis {
 	}
 	
 	private void addDisease(String disease, String d) {
-		String query = "INSERT INTO "+tableName+" VALUES('"+this.UID+"','"+disease+"',TO_DATE('"+d+"','MM-DD-YYYY'))";
+		String query = "INSERT INTO "+tableName+" VALUES('"+this.UID+"','"+disease+"',TO_DATE('"+d+"','MM-DD-YYYY'), NULL)";
 		int c = DatabaseConnector.updateDB(query);
 		if (c == 0) {
 			System.out.println("Coudn't add diagnosis, either disease id invalid or date format incorrect");
@@ -120,8 +120,10 @@ public class Diagnosis {
 		if (disease.equals(""))
 			System.out.println("No such disease related to the given patient");
 		
-		String query = "DELETE FROM "+tableName+" WHERE "+colid+"='"+this.UID+"' AND "+coldid+"='"+disease+"'";
-		int r = DatabaseConnector.updateDB(query);
+//		String query = "DELETE FROM "+tableName+" WHERE "+colid+"='"+this.UID+"' AND "+coldid+"='"+disease+"'";
+		String query2 = "UPDATE "+tableName+" SET "+colenddate+"=sysdate WHERE "+colid+"='"+this.UID+"' AND "+
+				coldid+"='"+disease+"' AND "+colenddate+" IS NULL";
+		int r = DatabaseConnector.updateDB(query2);
 		if (r == 0) {
 			System.out.println("No such disease related to the given patient");
 		}

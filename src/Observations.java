@@ -88,7 +88,8 @@ public class Observations {
 				String obsDate = StaticFunctions.nextLine();
 				System.out.println("Enter Record Date (MM/DD/YYYY hh:mm:ss):");
 				String entryDate = StaticFunctions.nextLine();
-				String query = "SELECT M."+mcolobstype+" FROM "+mtableName+" M WHERE M."+mcolobsname+" = '"+ObservationNames[option-1]+"'";
+				String query = "SELECT M."+mcolobstype+" FROM "+mtableName+" M WHERE M."+mcolobsname+" = '"+
+						ObservationNames[option-1]+"'";
 				ResultSet res2 = DatabaseConnector.runQuery(query);
 				try {
 					if (res2.next()) {
@@ -97,9 +98,9 @@ public class Observations {
 							String measure = res2.getString(1);
 							System.out.println("Enter Obs value for " + measure);
 							int obsValue = StaticFunctions.nextInt();
-							String query1 = "INSERT INTO record VALUES('"+UID+"','"+ObservationNames[option-1]+"','"+measure+
-									"',TO_DATE('"+obsDate+"','MM/DD/YYYY hh/mi/ss'),'"+obsValue+"', TO_DATE('"+
-									entryDate+"','MM/DD/YYYY hh/mi/ss'))";
+							String query1 = "INSERT INTO record VALUES('"+UID+"','"+ObservationNames[option-1]+
+									"','"+measure+"',TO_DATE('"+obsDate+"','MM/DD/YYYY hh/mi/ss'),'"+obsValue+
+									"', TO_DATE('"+entryDate+"','MM/DD/YYYY hh/mi/ss'))";
 							int r = DatabaseConnector.updateDB(query1);
 							if (r==0) {
 								System.out.println("Couldn't add record - Invalid input");
@@ -172,7 +173,7 @@ public class Observations {
 				}
 			}
 			else {
-				System.out.println("No Observation Types valid for patient");
+				System.out.println("No observation Types valid for patient");
 			}
 		}
 		catch (Exception e) {

@@ -231,16 +231,31 @@ public class HealthSupporters {
 				option = StaticFunctions.nextInt();
 				if (option == 1) {
 					if (primaryHS != null) {
-						String query = "DELETE FROM "+primaryTableName+" HS WHERE HS."+pcolpatientid+"='"+this.patientID+"'";
-						int r = DatabaseConnector.updateDB(query);
 						
-						if (r == 0) {
-							System.out.println("Unable to delete HS");
+						
+						if (secondaryHS != null) {
+							String query = "DELETE FROM "+secTableName+" HS WHERE HS."+scolpatientid+"='"+this.patientID+"'";
+							DatabaseConnector.updateDB(query);
+							query = "DELETE FROM "+primaryTableName+" HS WHERE HS."+pcolpatientid+"='"+this.patientID+"'";
+							DatabaseConnector.updateDB(query);
+							
+							query = "INSERT INTO "+primaryTableName+" VALUES('"+patientID+"','"+secondaryHS.getUID()+
+									"',TO_DATE('"+since2.toString()+"','YYYY-MM-DD'))";
+							DatabaseConnector.updateDB(query);
+							
 						}
 						else {
-							fetchHealthSupporterInformation();
-							System.out.println("Primary HS deleted");
-							break;
+							String query = "DELETE FROM "+primaryTableName+" HS WHERE HS."+pcolpatientid+"='"+this.patientID+"'";
+							int r = DatabaseConnector.updateDB(query);
+							
+							if (r == 0) {
+								System.out.println("Unable to delete HS");
+							}
+							else {
+								fetchHealthSupporterInformation();
+								System.out.println("Primary HS deleted");
+								break;
+							}
 						}
 					}
 					else {
@@ -269,6 +284,7 @@ public class HealthSupporters {
 				}
 			}
 		}
+		fetchHealthSupporterInformation();
 	}
 	
 	private void viewHealthSupporters() {

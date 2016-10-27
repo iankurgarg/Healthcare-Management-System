@@ -1,10 +1,9 @@
 import java.sql.*;
-//import java.util.Scanner;
 
 public class DatabaseConnector {
 	private static final String jdbcURL = "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01";
-	private static String user = "agarg12";
-	private static String password = "200157990";
+	private static String user = "svshahan";
+	private static String password = "sanket123";
 	public static Connection conn = null;
 	private static Statement stmt = null;
 	
@@ -15,7 +14,6 @@ public class DatabaseConnector {
 	}
 	
 	public static void connect() {
-//		Scanner sc = new Scanner(System.in);
 		try {
 			Class.forName("oracle.jdbc.driver.OracleDriver");
 		}
@@ -25,10 +23,11 @@ public class DatabaseConnector {
 		}
 		
 		try {
-//			System.out.println("Enter oracle server username:");
-//			String us = sc.next();
-//			System.out.println("Enter password:");
-//			String pass = sc.next();
+			System.out.println("Enter oracle server username:");
+			user = StaticFunctions.next();
+			System.out.println("Enter password:");
+			password = StaticFunctions.next();
+
 			conn = DriverManager.getConnection(jdbcURL, user, password);
 		}
 		catch (Exception e) {

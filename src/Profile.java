@@ -117,6 +117,10 @@ public class Profile {
 		}
 	}
 	
+	public String getUID() {
+		return this.UID;
+	}
+	
 	public String getName() {
 		return FName+" "+LName;
 	}

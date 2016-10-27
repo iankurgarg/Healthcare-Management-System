@@ -4,8 +4,8 @@
 
 public class Home {
     public static void main(String[] args) throws Exception{
-    	DatabaseConnector.connect();
     	StaticFunctions.Initialise();
+    	DatabaseConnector.connect();    	
     	UserSession us = new UserSession();
     	Signup s = new Signup();
     	int option = 0;

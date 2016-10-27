@@ -13,11 +13,12 @@ public class HS {
 	
 	public void MainView() {
 		int option = 0;
-		while (option != 3) {
+		while (option != 4) {
 			System.out.println("Select from the following options:\n"
 					+ "1. Profile\n"
 					+ "2. Manage Patients\n"
-					+ "3. Logout");
+					+ "3. Register as a Patient\n"
+					+ "4. Logout");
 			option = StaticFunctions.nextInt();
 			switch(option) {
 			case 1:
@@ -27,11 +28,37 @@ public class HS {
 				ManagePatients();
 				break;
 			case 3:
+				becomePatient();
+				break;
+			case 4:
 				break;
 			default:
 				System.out.println("Invalid Selection");
 					
 			}
+		}
+	}
+	
+	private void becomePatient() {
+		ResultSet res = DatabaseConnector.runQuery("SELECT * FROM "+Patient.tableName+" P WHERE P."+Patient.coluserid+"='"+this.HSID+"'");
+		try {
+			if (res.isAfterLast()) {
+				String query = "INSERT INTO "+Patient.tableName+" VALUES ('"+this.HSID+"', 1, 1)";
+				int r = DatabaseConnector.updateDB(query);
+				if (r == 0) {
+					System.out.println("Couldn't add you as patient");
+				}
+				else {
+					System.out.println("Added you as patient. Login as patient for more options");
+				}
+			}
+			else {
+				System.out.println("You are already registered as a patient");
+			}
+		}
+		catch (Exception e) {
+			System.out.println("Error: Unable to fetch patient information");
+			System.exit(-1);
 		}
 	}
 	
