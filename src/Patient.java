@@ -38,7 +38,8 @@ public class Patient {
 		d = new Diagnosis(UID);
 		Obs = new Observations(UID);
 		al = new Alerts(UID);
-		hs = new HealthSupporters(UID, d.isSick());
+		hs = new HealthSupporters(UID);
+		hs.setPtype(d.isSick());
 	}
 	
 	public int MainView() {
@@ -71,6 +72,7 @@ public class Patient {
 					break;
 				case 2:
 					d.MainView();
+					hs.setPtype(d.isSick());
 					break;
 				case 3:
 					Obs.MainView();

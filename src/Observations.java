@@ -49,11 +49,12 @@ public class Observations {
 	
 	public void MainView() {
 		int option = 0;
-		while (option != 3) {
+		while (option != 4) {
 			System.out.println("Select from following options:\n"
 					+ "1. View observation records\n"
 					+ "2. Enter new observation record\n"
-					+ "3. Go Back");
+					+ "3. View Health Indicators\n"
+					+ "4. Go Back");
 			option = StaticFunctions.nextInt();
 			if (option == 1) {
 				R.fetchRecords();
@@ -63,8 +64,19 @@ public class Observations {
 				GetObservationTypes();
 				addRecord();
 			}
+			else if(option == 3) {
+				GetObservationTypes();
+				viewHealthIndicators();
+			}
 		}
 		return;
+	}
+	
+	private void viewHealthIndicators() {
+		System.out.println("Following are your health indicators:");
+		for (int i = 0; i < ObservationNames.length; i++) {
+			System.out.println(ObservationNames[i] +" "+ObsTypes[i] + " " + upperLimit[i] +" "+lowerlimit[i]+" "+frequency[i]);
+		}
 	}
 	
 	private void addRecord() {

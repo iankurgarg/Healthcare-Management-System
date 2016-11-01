@@ -5,14 +5,16 @@ public class PFORHS {
 	private String patientid;
 	private Profile p;
 	private Record r;
+	private Diagnosis d;
 	private Date authDate;
 	private String options = "Select from the following:\n"
 			+ "1. View Patient Profile\n"
 			+ "2. View Patient Records\n"
-			+ "3. Add Specific Reccommendation\n"
-			+ "4. View Alerts\n"
-			+ "5. Clear Alerts\n"
-			+ "6. Go Back";
+			+ "3. Diagnois\n"
+			+ "4. Add Specific Reccommendation\n"
+			+ "5. View Alerts\n"
+			+ "6. Clear Alerts\n"
+			+ "7. Go Back";
 	private String alert1 = "";
 	private String alert2 = "";
 	private Date alert1d = null;
@@ -22,6 +24,7 @@ public class PFORHS {
 		this.patientid = patientID;
 		p = new Profile(this.patientid);
 		r = new Record(this.patientid);
+		d = new Diagnosis(this.patientid);
 		this.authDate = auth;
 	}
 	
@@ -34,7 +37,7 @@ public class PFORHS {
 			System.out.println("You are not yet authorised to manage this patient");
 		else {
 			int option = 0;
-			while (option != 6) {
+			while (option != 7) {
 				System.out.println(options);
 				option = StaticFunctions.nextInt();
 				switch(option){
@@ -45,15 +48,18 @@ public class PFORHS {
 					r.showRecords();
 					break;
 				case 3:
-					addRecco();
+					d.MainView();
 					break;
 				case 4:
-					viewAlerts();
+					addRecco();
 					break;
 				case 5:
-					clearAlerts();
+					viewAlerts();
 					break;
 				case 6:
+					clearAlerts();
+					break;
+				case 7:
 					break;
 				default:
 					System.out.println("Invalid Selection");
@@ -69,8 +75,7 @@ public class PFORHS {
 		StaticFunctions.nextLine();
 		String obsName = StaticFunctions.nextLine();
 		
-		String query = "SELECT M."+Observations.mcolobstype+", M."+Observations.mcolul+", M."+Observations.mcolll
-				+", M."+Observations.mcolfreq+" FROM "+Observations.mtableName+" M WHERE M."
+		String query = "SELECT M."+Observations.mcolobstype+" FROM "+Observations.mtableName+" M WHERE M."
 				+Observations.mcolobsname+" = '"+obsName+"'";
 		ResultSet res = DatabaseConnector.runQuery(query);
 		
@@ -79,11 +84,11 @@ public class PFORHS {
 				res.beforeFirst();
 				while(res.next()) {
 					String measure = res.getString(1);
-					System.out.println("Enter Lower Limit for "+measure+" (Default:"+res.getInt(2)+")");
+					System.out.println("Enter Lower Limit for "+measure+":");
 					int lowerlimit = StaticFunctions.nextInt();
-					System.out.println("Enter Upper Limit for "+measure+" (Default:"+res.getInt(3)+")");
+					System.out.println("Enter Upper Limit for "+measure+":");
 					int upperlimit = StaticFunctions.nextInt();
-					System.out.println("Enter frequency for "+measure+" (Default:"+res.getInt(4)+")");
+					System.out.println("Enter frequency for "+measure+":");
 					int freq = StaticFunctions.nextInt();
 					String query1 = "INSERT INTO "+Observations.smtableName+" VALUES('"+patientid+"','"+obsName+"','"+measure+
 							"',"+lowerlimit+","+upperlimit+","+freq+")";
@@ -106,6 +111,8 @@ public class PFORHS {
 	}
 	
 	private void fetchAlerts() {
+		alert1 = "";
+		alert2 = "";
 		String query = "SELECT A."+Alerts.colAlertType+", A."+Alerts.colmsg+", A."+Alerts.coldatec+" FROM "
 				+Alerts.atableName+" A WHERE A."+Alerts.colpatientID+"='"+this.patientid+"'";
 		ResultSet res = DatabaseConnector.runQuery(query);
@@ -138,11 +145,11 @@ public class PFORHS {
 		System.out.println("Alerts:");
 		int i = 1;
 		if (!alert1.equals("")) {
-			System.out.println(i+". "+alert1+" - "+alert1d.toString());
+			System.out.println(i+". Outside the limit - "+alert1+" - "+alert1d.toString());
 			i++;
 		}
 		if (!alert2.equals("")) {
-			System.out.println(i+". "+alert2+" - "+alert2d.toString());
+			System.out.println(i+". Low Activity - "+alert2+" - "+alert2d.toString());
 		}
 	}
 	
@@ -193,5 +200,6 @@ public class PFORHS {
 			}
 			
 		}
+		fetchAlerts();
 	}
 }

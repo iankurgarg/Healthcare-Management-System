@@ -12,9 +12,11 @@ public class Profile {
 	private String profileOptions = "Select an option:\n"
 			+ "1. Update First Name\n"
 			+ "2. Update Last Name\n"
-			+ "3. Update Address\n"
-			+ "4. Update Phone\n"
-			+ "5. Go Back";
+			+ "3. Update Gender\n"
+			+ "4. Update Date of Birth\n"
+			+ "5. Update Address\n"
+			+ "6. Update Phone\n"
+			+ "7. Go Back";
 	
 	public Profile (String ID) {
 		this.UID = ID;
@@ -88,6 +90,32 @@ public class Profile {
 		}
 		case 3:
 		{
+			String newGender = "";
+			System.out.println("Enter new Gender (M/F):");
+			StaticFunctions.nextLine();
+			newGender = StaticFunctions.next();
+			if (newGender.equals("")) {
+				System.out.println("Gender not updated");
+				break;
+			}
+			updateGender(newGender);
+			break;
+		}
+		case 4:
+		{
+			String newName = "";
+			System.out.println("Enter new Date of Birth (MM-DD-YYYY):");
+			StaticFunctions.nextLine();
+			newName = StaticFunctions.nextLine();
+			if (newName.equals("")) {
+				System.out.println("Date of Birth not updated");
+				break;
+			}
+			updateDOB(newName);
+			break;
+		}
+		case 5:
+		{
 			String newAddress = "";
 			System.out.println("Enter new Address:");
 			StaticFunctions.nextLine();
@@ -99,7 +127,7 @@ public class Profile {
 			updateAddress(newAddress);
 			break;
 		}
-		case 4:
+		case 6:
 		{
 			String newPhone = "";
 			System.out.println("Enter new Phone:");
@@ -155,7 +183,7 @@ public class Profile {
 		}
 		
 		if (r == 0) {
-			System.out.println("Couldn't update Name");
+			System.out.println("Couldn't update Name: Possible invalid input");
 		}
 		else
 			System.out.println("Name Updated");
@@ -166,7 +194,7 @@ public class Profile {
 		String query = "UPDATE "+UserSession.tableName+" P SET "+UserSession.colAddress+"='"+newAddress+"' WHERE "+UserSession.colID+"='"+this.UID+"'";
 		int r = DatabaseConnector.updateDB(query);
 		if (r == 0) {
-			System.out.println("Couldn't update Address");
+			System.out.println("Couldn't update Address: Possible invalid input");
 		}
 		else
 			System.out.println("Address Updated");
@@ -178,14 +206,41 @@ public class Profile {
 		int r = DatabaseConnector.updateDB(query);
 		
 		if (r == 0) {
-			System.out.println("Couldn't update Phone");
+			System.out.println("Couldn't update Phone: Possible invalid input");
 		}
 		else
 			System.out.println("Phone Updated");
 	}
 	
+	private void updateGender(String newGender) {
+		this.gender = newGender;
+		String query = "UPDATE "+UserSession.tableName+" P SET "+UserSession.colGender+"='"+newGender+"' WHERE "+UserSession.colID+"='"+this.UID+"'";
+		int r = DatabaseConnector.updateDB(query);
+		
+		if (r == 0) {
+			System.out.println("Couldn't update Gender: Possible invalid input");
+		}
+		else
+			System.out.println("Gender Updated");
+		
+		fetchProfile();
+	}
+	
+	private void updateDOB (String newDOB) {
+		String query = "UPDATE "+UserSession.tableName+" P SET "+UserSession.colDOB+"=TO_DATE('"+newDOB+"','MM-DD-YYYY') WHERE "+UserSession.colID+"='"+this.UID+"'";
+		int r = DatabaseConnector.updateDB(query);
+		
+		if (r == 0) {
+			System.out.println("Couldn't update Date of Birth: Possible invalid input");
+		}
+		else
+			System.out.println("Date of Birth Updated");
+		
+		fetchProfile();
+	}
+	
 	public void viewProfile(){
-		System.out.println("Name = "+FName+" "+LName);
+		System.out.println("Name = "+FName+" " + LName);
 		System.out.println("Gender = "+gender);
 		System.out.println("Date of Birth = "+dob.toString());
 		System.out.println("Address = "+Address);
@@ -197,10 +252,10 @@ public class Profile {
 			viewProfile();
 
 			int option = 0;
-			while (option != 5) {
+			while (option != 7) {
 				System.out.println(profileOptions);
 				option = StaticFunctions.nextInt();
-				if (option == 5)
+				if (option == 7)
 					break;
 				updateDetails(option);
 			}

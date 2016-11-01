@@ -73,14 +73,14 @@ public class Diagnosis {
 				System.out.println("Invalid Input");
 			else if (option == 1) {
 				if (num > 0) {
-					System.out.println("You have the following Diagnosis:");
+					System.out.println("Patient has the following Diagnosis:");
 					for (int i = 0; i < num; i++) {
 						System.out.print(DiseaseNames[i]+"\t");
 						System.out.println(DiseaseDates[i]);
 					}
 				}
 				else {
-					System.out.println("You are a well patient");
+					System.out.println("Patient is a well patient");
 				}
 			}
 			else if (option == 2) {

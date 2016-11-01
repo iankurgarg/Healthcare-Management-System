@@ -18,10 +18,13 @@ public class HealthSupporters {
 	static String scolsince = "since";
 	
 	
-	public HealthSupporters(String PatientID, int type) {
+	public HealthSupporters(String PatientID) {
 		this.patientID = PatientID;
-		this.ptype = type;
 		fetchHealthSupporterInformation();
+	}
+	
+	public void setPtype(int type) {
+		this.ptype = type;
 	}
 	
 	public void MainView() {
@@ -42,7 +45,7 @@ public class HealthSupporters {
 				updateHS();
 				break;
 			case 3:
-				deleteHS();
+				deleteHS2();
 				break;
 			case 4:
 				break;
@@ -191,6 +194,66 @@ public class HealthSupporters {
 		}
 	}
 	
+	private void deleteHS2() {
+		int option = 0;
+		while (option != 3) {
+			System.out.println("Choose from following:\n"
+					+ "1. Delete Primary HS\n"
+					+ "2. Delete Secondary HS\n"
+					+ "3. Go Back");
+			option = StaticFunctions.nextInt();
+			if (option == 1){
+				if (secondaryHS == null && ptype == 1) {
+					System.out.println("You must have atleast one health supporter");
+				}
+				else if (secondaryHS != null) {
+					String query = "DELETE FROM "+secTableName+" HS WHERE HS."+scolpatientid+"='"+this.patientID+"'";
+					DatabaseConnector.updateDB(query);
+					query = "DELETE FROM "+primaryTableName+" HS WHERE HS."+pcolpatientid+"='"+this.patientID+"'";
+					DatabaseConnector.updateDB(query);
+					
+					query = "INSERT INTO "+primaryTableName+" VALUES('"+patientID+"','"+secondaryHS.getUID()+
+							"',TO_DATE('"+since2.toString()+"','YYYY-MM-DD'))";
+					DatabaseConnector.updateDB(query);
+				}
+				else {
+					String query = "DELETE FROM "+primaryTableName+" HS WHERE HS."+pcolpatientid+"='"+this.patientID+"'";
+					int r = DatabaseConnector.updateDB(query);
+					
+					if (r == 0) {
+						System.out.println("Unable to delete HS");
+					}
+					else {
+						fetchHealthSupporterInformation();
+						System.out.println("Primary HS deleted");
+						break;
+					}
+				}
+			}
+			else if (option == 2) {
+				if (secondaryHS != null) {
+					String query = "DELETE FROM "+secTableName+" HS WHERE HS."+scolpatientid+"='"+this.patientID+"'";
+					int r = DatabaseConnector.updateDB(query);
+					if (r == 0) {
+						System.out.println("Unable to delete HS");
+					}
+					else {
+						fetchHealthSupporterInformation();
+						System.out.println("Secondary HS deleted");
+						break;
+					}
+				}
+				else {
+					System.out.println("You don't have a secondary HS");
+				}
+			}
+			else if (option < 1 || option > 3) {
+				System.out.println("Invalid Selection");
+			}
+		}
+		fetchHealthSupporterInformation();
+	}
+	
 	private void deleteHS() {
 		if (ptype == 1) {
 			if (secondaryHS == null) {
@@ -288,8 +351,10 @@ public class HealthSupporters {
 	}
 	
 	private void viewHealthSupporters() {
+		fetchHealthSupporterInformation();
 		if (primaryHS != null) {
 			System.out.println("Primary:");
+			System.out.println("ID: "+primaryHS.getUID());
 			System.out.println("Name: "+primaryHS.getName());
 			System.out.println("Gender: "+primaryHS.getGender());
 			System.out.println("Date of Birth: "+primaryHS.getDOB().toString());
@@ -303,6 +368,7 @@ public class HealthSupporters {
 		
 		if (secondaryHS != null) {
 			System.out.println("Secondary:");
+			System.out.println("ID: "+secondaryHS.getUID());
 			System.out.println("Name: "+secondaryHS.getName());
 			System.out.println("Gender: "+secondaryHS.getGender());
 			System.out.println("Date of Birth: "+secondaryHS.getDOB().toString());
